@@ -201,10 +201,22 @@ abstract class Color
     protected float $red = 0.0;
 
     protected static array $spaceMap = [
-        'hsl' => Hsl::class,
-        'hsla' => Hsl::class,
-        'rgb' => Rgb::class,
-        'rgba' => Rgb::class,
+        'hsl' => [
+            'class' => Hsl::class,
+            'factors' => [360.0, 1.0, 1.0, 1.0],
+        ],
+        'hsla' => [
+            'class' => Hsl::class,
+            'factors' => [360.0, 1.0, 1.0, 1.0],
+        ],
+        'rgb' => [
+            'class' => Rgb::class,
+            'factors' => [255.0, 255.0, 255.0, 1.0],
+        ],
+        'rgba' => [
+            'class' => Rgb::class,
+            'factors' => [255.0, 255.0, 255.0, 1.0],
+        ],
     ];
 
     /**
@@ -409,18 +421,13 @@ abstract class Color
      * @return float
      */
     public function getHue(): float {
-        $lightness = max($this->red, $this->green, $this->blue);
+        $max = max($this->red, $this->green, $this->blue);
         $min = min($this->red, $this->green, $this->blue);
-        if ($lightness) {
-            $saturation = ($lightness - $min) / $lightness;
-        } else {
-            $saturation = 0.0;
-        }
-        if ($saturation) {
-            $delta = $lightness - $min;
-            if ($this->red === $lightness) {
+        $delta = $max - $min;
+        if ($delta) {
+            if ($this->red === $max) {
                 $hue = ($this->green - $this->blue) / $delta;
-            } else if ($this->green === $lightness) {
+            } else if ($this->green === $max) {
                 $hue = 2 + ($this->blue - $this->red) / $delta;
             } else {
                 $hue = 4 + ($this->red - $this->green) / $delta;
@@ -580,16 +587,12 @@ abstract class Color
      * @return float
      * @throws ColorSpaceException
      */
-    public static function limit(float|int|string $value, bool $alpha = false): float
+    public static function limit(float|int|string $value, float $factor = 255.0): float
     {
         if (is_string($value)) {
             if (str_ends_with($value, '%')) {
                 $value = substr($value, 0, -1);
                 $factor = 100.0;
-            } elseif ($alpha) {
-                $factor = 1;
-            } else {
-                $factor = 255.0;
             }
             if (!is_numeric($value)) {
                 throw new ColorSpaceException("$value is not valid.");
@@ -621,7 +624,8 @@ abstract class Color
         if (!isset(self::$spaceMap[$function])) {
             throw new ColorSpaceException("Unsupported color function: $function");
         }
-        $colorClass = self::$spaceMap[$function];
+        $colorClass = self::$spaceMap[$function]['class'];
+        $factors = self::$spaceMap[$function]['factors'];
         // figure out if we're doing "legacy" or "modern" syntax.
         $parts = explode(',', $args);
         if (count($parts) === 1) {
@@ -640,7 +644,7 @@ abstract class Color
             }
             foreach ($parts as $key => &$part) {
                 if ($part !== 'none') {
-                    $part = self::limit($part, $key === 3);
+                    $part = self::limit($part, $factors[$key]);
                 }
             }
             $color = new ($colorClass)($parts);
@@ -649,7 +653,7 @@ abstract class Color
             $args = preg_replace('!\s*!', '', $args);
             $parts = explode(',', $args);
             foreach ($parts as $key => &$part) {
-                $part = self::limit($part, $key === 3);
+                $part = self::limit($part, $factors[$key]);
             }
             if (count($parts) === 3) {
                 $parts[] = 1.0;
@@ -698,13 +702,6 @@ abstract class Color
         }
         $color->setAlpha($this->alpha);
         return $color;
-    }
-
-    protected function register(array $spaces): void
-    {
-        foreach ($spaces as $space) {
-            self::$spaceMap[$space] = self::class;
-        }
     }
 
     /**
@@ -852,18 +849,16 @@ abstract class Color
     /**
      * Set a color using a predefined name.
      * @param string $name
-     * @param float|int|string $alpha
      * @return $this
      * @throws ColorSpaceException
      */
-    public function setNamedColor(string $name, float|int|string $alpha = 0): self
+    public function setNamedColor(string $name): self
     {
         $name = strtolower($name);
         if (!isset(self::$namedColors[$name])) {
             throw new ColorSpaceException("Unknown named color: $name");
         }
         $this->setRgbaInt(self::$namedColors[$name]);
-        $this->setAlpha($alpha);
 
         return $this;
     }
@@ -965,6 +960,13 @@ abstract class Color
     public function toCssHex(): string
     {
         return '#' . $this->hex($this->red) . $this->hex($this->green) . $this->hex($this->blue);
+    }
+
+    public function toString(int $precision = 2): string
+    {
+        return self::asPercent($this->red, $precision)
+            . ', ' . self::asPercent($this->green, $precision)
+            . ', ' . self::asPercent($this->blue, $precision);
     }
 
 }

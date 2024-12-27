@@ -60,11 +60,11 @@ class RgbTest extends TestCase
         $color = Color::fromCss('#202020');
         $this->assertInstanceOf(Rgb::class, $color);
         $this->assertEquals('rgb(32 32 32)', $color->toCss());
-        $this->assertEquals('rgb(32,32,32)', $color->toCss(true));
+        $this->assertEquals('rgb(32, 32, 32)', $color->toCss(true));
         $this->assertEquals('#202020', $color->toCssHex());
         $color->setAlpha(0.2);
         $this->assertEquals('rgba(32 32 32 / 0.2)', $color->toCss());
-        $this->assertEquals('rgba(32,32,32,0.2)', $color->toCss(true));
+        $this->assertEquals('rgba(32, 32, 32, 0.2)', $color->toCss(true));
     }
 
     public function testFromCssRgb()
@@ -72,11 +72,11 @@ class RgbTest extends TestCase
         $color = Color::fromCss('rgb(32 12.6% 32)');
         $this->assertInstanceOf(Rgb::class, $color);
         $this->assertEquals('rgb(32 32 32)', $color->toCss());
-        $this->assertEquals('rgb(32,32,32)', $color->toCss(true));
+        $this->assertEquals('rgb(32, 32, 32)', $color->toCss(true));
         $this->assertEquals('#202020', $color->toCssHex());
         $color = Color::fromCss('rgb(32 12.6% 32 / 0.2)');
         $this->assertEquals('rgba(32 32 32 / 0.2)', $color->toCss());
-        $this->assertEquals('rgba(32,32,32,0.2)', $color->toCss(true));
+        $this->assertEquals('rgba(32, 32, 32, 0.2)', $color->toCss(true));
     }
 
     public function testFromCssRgbLegacy()
@@ -84,11 +84,11 @@ class RgbTest extends TestCase
         $color = Color::fromCss('rgb(32, 32, 32)');
         $this->assertInstanceOf(Rgb::class, $color);
         $this->assertEquals('rgb(32 32 32)', $color->toCss());
-        $this->assertEquals('rgb(32,32,32)', $color->toCss(true));
+        $this->assertEquals('rgb(32, 32, 32)', $color->toCss(true));
         $this->assertEquals('#202020', $color->toCssHex());
         $color = Color::fromCss('rgb(32,12.6%,32,0.2)');
         $this->assertEquals('rgba(32 32 32 / 0.2)', $color->toCss());
-        $this->assertEquals('rgba(32,32,32,0.2)', $color->toCss(true));
+        $this->assertEquals('rgba(32, 32, 32, 0.2)', $color->toCss(true));
     }
 
     public function testGetHex()

@@ -46,7 +46,7 @@ class Rgb extends Color
      * float 0.0-1.0. Defaults to zero.
      * @param float|int $blue The blue component of the color. Integer 0-255 or
      * float 0.0-1.0. Defaults to zero.
-     * @param float $alpha The alpha component of the color, range 0.0-1.0. Defaults to 1.0.
+     * @param float|null $alpha The alpha component of the color, range 0.0-1.0. Defaults to 1.0.
      * @return Color The new Color object.
      * @throws ColorSpaceException
      */
@@ -54,7 +54,7 @@ class Rgb extends Color
         float|Color|array|int|string $red = 0,
         float|int $green = 0,
         float|int $blue = 0,
-        float $alpha = 1.0
+        ?float $alpha = null
     ): Color
     {
         if (is_array($red)) {
@@ -74,7 +74,10 @@ class Rgb extends Color
             $color = new Rgb();
             $red = strtolower($red);
             if (in_array($red, self::$namedColors)) {
-                $color->setNamedColor($red, $alpha);
+                $color->setNamedColor($red);
+                if ($alpha !== null) {
+                    $color->setAlpha($alpha);
+                }
             } elseif (preg_match('!#?[0-9a-f]{3}([0-9a-f]{3})?!', $red)) {
                 $color->setHex($red);
             } elseif (preg_match('!\s*([a-z]+)\s*\((.*?)\)!', $red, $match)) {
@@ -89,13 +92,13 @@ class Rgb extends Color
     public function toCss(bool $legacy = false): string
     {
         $hasAlpha = $this->alpha !== 1.0;
-        $delimit = $legacy ? ',' : ' ';
+        $delimit = $legacy ? ', ' : ' ';
         $result = $hasAlpha ? 'rgba(' : 'rgb(';
         $result .= round($this->red * 255)
             . $delimit . round($this->green * 255)
             . $delimit . round($this->blue * 255);
         if ($hasAlpha) {
-            $result .= ($legacy ? ',' : ' / ') . round($this->alpha, 4);
+            $result .= ($legacy ? ', ' : ' / ') . round($this->alpha, 4);
         }
         $result .= ')';
 

@@ -20,14 +20,14 @@ class HslTest extends TestCase
 
     public function testFromCssHsl()
     {
-        $color = Color::fromCss('hsl(50%, 10%, 25%)');
+        $color = Color::fromCss('hsl(180, 10%, 25%)');
         $this->assertInstanceOf(Hsl::class, $color);
-        $this->assertEquals('hsl(128 10% 25%)', $color->toCss());
-        $this->assertEquals('hsl(128,10%,25%)', $color->toCss(true));
-        $this->assertEquals('#393f3f', $color->toCssHex());
+        $this->assertEquals('hsl(180 10% 25%)', $color->toCss());
+        $this->assertEquals('hsl(180, 10%, 25%)', $color->toCss(true));
+        $this->assertEquals('#394646', $color->toCssHex());
         $color->setAlpha(0.2);
-        $this->assertEquals('hsla(128 10% 25% / 0.2)', $color->toCss());
-        $this->assertEquals('hsla(128,10%,25%,0.2)', $color->toCss(true));
+        $this->assertEquals('hsla(180 10% 23.75% / 0.2)', $color->toCss());
+        $this->assertEquals('hsla(180, 10%, 23.75%, 0.2)', $color->toCss(true));
     }
 
     public function testFromRgb()

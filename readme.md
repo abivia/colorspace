@@ -3,8 +3,8 @@
 This is a revisit of a library that was written for PHP 4, revised for PHP 5,
 now rewritten for PHP 8.1+.
 
-It allows conversions between colors in RGB and HSL spaces, 
-including parsing CSS colors in both "legacy" and "modern" syntax.
+It allows conversions between colors in RGB, HSL, and HSB (aka HSV) spaces, 
+including parsing RGB/HSL CSS colors in both "legacy" and "modern" syntax.
 The library also supports a variety of color manipulation operations
 (blend, difference, posterize, etc.)
 
