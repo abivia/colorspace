@@ -319,7 +319,7 @@ abstract class Color
     public static function fromCss(string $css): Color
     {
         $css = strtolower($css);
-        if (isset($css, self::$namedColors)) {
+        if (isset($css, self::$namedColors[$css])) {
             $color = (new Rgb())->setNamedColor($css);
         } elseif (preg_match('!#?[0-9a-f]{3}([0-9a-f]{3})?!', $css)) {
             $color = (new Rgb())->setHex($css);
