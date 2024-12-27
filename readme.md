@@ -1,4 +1,4 @@
-# Abivia\Colorspace - Color conversions and manipulation
+# Abivia\ColorSpace - Color conversions and manipulation
 
 This is a revisit of a library that was written for PHP 4, revised for PHP 5,
 now rewritten for PHP 8.1+.
