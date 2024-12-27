@@ -55,12 +55,9 @@ class Hsl extends Color
         if ($this->recompute) {
             $max = (float)max($this->red, $this->green, $this->blue);
             $min = (float)min($this->red, $this->green, $this->blue);
-            $this->lightness = $max;
-            if ($max) {
-                $this->saturation = ($max - $min) / $max;
-            } else {
-                $this->saturation = 0.0;
-            }
+            $this->lightness = ($min + $max) / 2.0;
+            $sat = 1 - abs($min + $max - 1);
+            $this->saturation = $sat ? ($max - $min) / $sat : 0.0;
             $this->hue = parent::getHue();
             $this->recompute = false;
         }
@@ -73,69 +70,46 @@ class Hsl extends Color
      */
     protected function calculateRgb(): void
     {
-        if ($this->saturation) {
-            $h = $this->hue * 6;
-            $sector = floor($h);
-            $pos = $h - $sector;
-            $c1 = $this->lightness * (1 - $this->saturation);
-            $c2 = $this->lightness * (1 - ($this->saturation * $pos));
-            $c3 = $this->lightness * (1 - ($this->saturation * (1 - $pos)));
-            //echo 'sec=' . $sector . ' pos=' . $pos . ' c1=' . $c1 . ' c2=' . $c2 . ' c3=' . $c3 . '<br/>';
-            switch ($sector) {
-                case 0:
-                    {
-                        $this->red = $this->lightness;
-                        $this->green = $c3;
-                        $this->blue = $c1;
-                    }
-                    break;
-
-                case 1:
-                    {
-                        $this->red = $c2;
-                        $this->green = $this->lightness;
-                        $this->blue = $c1;
-                    }
-                    break;
-
-                case 2:
-                    {
-                        $this->red = $c1;
-                        $this->green = $this->lightness;
-                        $this->blue = $c3;
-                    }
-                    break;
-
-                case 3:
-                    {
-                        $this->red = $c1;
-                        $this->green = $c2;
-                        $this->blue = $this->lightness;
-                    }
-                    break;
-
-                case 4:
-                    {
-                        $this->red = $c3;
-                        $this->green = $c1;
-                        $this->blue = $this->lightness;
-                    }
-                    break;
-
-                case 5:
-                    {
-                        $this->red = $this->lightness;
-                        $this->green = $c1;
-                        $this->blue = $c2;
-                    }
-                    break;
-
-            }
-        } else {
-            $this->red = $this->lightness;
-            $this->green = $this->lightness;
-            $this->blue = $this->lightness;
+        $chroma = (1 - abs(2 * $this->lightness - 1)) * $this->saturation;
+        $hue6 = $this->hue * 6;
+        $sector = floor($hue6);
+        $x = $chroma * (1 - abs(fmod($hue6, 2) - 1));
+        $mid = $this->lightness - ($chroma / 2.0);
+        switch ($sector) {
+            case 0:
+                $this->red = $chroma;
+                $this->green = $x;
+                $this->blue = 0.0;
+            break;
+            case 1:
+                $this->red = $x;
+                $this->green = $chroma;
+                $this->blue = 0.0;
+            break;
+            case 2:
+                $this->red = 0.0;
+                $this->green = $chroma;
+                $this->blue = $x;
+                break;
+            case 3:
+                $this->red = 0.0;
+                $this->green = $x;
+                $this->blue = $chroma;
+                break;
+            case 4:
+                $this->red = $x;
+                $this->green = 0.0;
+                $this->blue = $chroma;
+                break;
+            default:
+                $this->red = $chroma;
+                $this->green = 0.0;
+                $this->blue = $x;
+                break;
         }
+        $this->red = max(min($this->red + $mid, 1.0), 0.0);
+        $this->green = max(min($this->green + $mid, 1.0), 0.0);
+        $this->blue = max(min($this->blue + $mid, 1.0), 0.0);
     }
 
     /**
@@ -308,21 +282,28 @@ class Hsl extends Color
         return $this;
     }
 
-    public function toCss(bool $legacy = false): string
+    public function toCss(bool $legacy = false, int $precision = 2): string
     {
         $this->calculateHsl();
         $hasAlpha = $this->alpha != 1.0;
-        $delimit = $legacy ? ',' : ' ';
+        $delimit = $legacy ? ', ' : ' ';
         $result = $hasAlpha ? 'hsla(' : 'hsl(';
-        $result .= round($this->hue * 255)
-            . $delimit . self::asPercent($this->saturation)
-            . $delimit . self::asPercent($this->lightness);
+        $result .= round($this->hue * 360, $precision)
+            . $delimit . self::asPercent($this->saturation, $precision)
+            . $delimit . self::asPercent($this->lightness, $precision);
         if ($hasAlpha) {
-            $result .= ($legacy ? ',' : ' / ') . round($this->alpha, 4);
+            $result .= ($legacy ? ', ' : ' / ') . round($this->alpha, $precision);
         }
         $result .= ')';
 
         return $result;
+    }
+
+    public function toString(int $precision = 2): string
+    {
+        return round($this->hue * 360, $precision)
+            . ', ' . self::asPercent($this->saturation, $precision)
+            . ', ' . self::asPercent($this->lightness, $precision);
     }
 
 }

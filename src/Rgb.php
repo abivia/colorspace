@@ -89,13 +89,13 @@ class Rgb extends Color
     public function toCss(bool $legacy = false): string
     {
         $hasAlpha = $this->alpha !== 1.0;
-        $delimit = $legacy ? ',' : ' ';
+        $delimit = $legacy ? ', ' : ' ';
         $result = $hasAlpha ? 'rgba(' : 'rgb(';
         $result .= round($this->red * 255)
             . $delimit . round($this->green * 255)
             . $delimit . round($this->blue * 255);
         if ($hasAlpha) {
-            $result .= ($legacy ? ',' : ' / ') . round($this->alpha, 4);
+            $result .= ($legacy ? ', ' : ' / ') . round($this->alpha, 4);
         }
         $result .= ')';
 

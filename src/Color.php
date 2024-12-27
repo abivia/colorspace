@@ -409,18 +409,13 @@ abstract class Color
      * @return float
      */
     public function getHue(): float {
-        $lightness = max($this->red, $this->green, $this->blue);
+        $max = max($this->red, $this->green, $this->blue);
         $min = min($this->red, $this->green, $this->blue);
-        if ($lightness) {
-            $saturation = ($lightness - $min) / $lightness;
-        } else {
-            $saturation = 0.0;
-        }
-        if ($saturation) {
-            $delta = $lightness - $min;
-            if ($this->red === $lightness) {
+        $delta = $max - $min;
+        if ($delta) {
+            if ($this->red === $max) {
                 $hue = ($this->green - $this->blue) / $delta;
-            } else if ($this->green === $lightness) {
+            } else if ($this->green === $max) {
                 $hue = 2 + ($this->blue - $this->red) / $delta;
             } else {
                 $hue = 4 + ($this->red - $this->green) / $delta;
@@ -856,7 +851,7 @@ abstract class Color
      * @return $this
      * @throws ColorSpaceException
      */
-    public function setNamedColor(string $name, float|int|string $alpha = 0): self
+    public function setNamedColor(string $name, float|int|string $alpha = 1.0): self
     {
         $name = strtolower($name);
         if (!isset(self::$namedColors[$name])) {
@@ -965,6 +960,13 @@ abstract class Color
     public function toCssHex(): string
     {
         return '#' . $this->hex($this->red) . $this->hex($this->green) . $this->hex($this->blue);
+    }
+
+    public function toString(int $precision = 2): string
+    {
+        return self::asPercent($this->red, $precision)
+            . ', ' . self::asPercent($this->green, $precision)
+            . ', ' . self::asPercent($this->blue, $precision);
     }
 
 }

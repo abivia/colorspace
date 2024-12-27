@@ -26,8 +26,8 @@ class HslTest extends TestCase
         $this->assertEquals('hsl(128,10%,25%)', $color->toCss(true));
         $this->assertEquals('#393f3f', $color->toCssHex());
         $color->setAlpha(0.2);
-        $this->assertEquals('hsla(128 10% 25% / 0.2)', $color->toCss());
-        $this->assertEquals('hsla(128,10%,25%,0.2)', $color->toCss(true));
+        $this->assertEquals('hsla(128 10% 23.75% / 0.2)', $color->toCss());
+        $this->assertEquals('hsla(128,10%,23.75%,0.2)', $color->toCss(true));
     }
 
     public function testFromRgb()
