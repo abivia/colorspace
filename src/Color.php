@@ -321,7 +321,7 @@ abstract class Color
         $css = strtolower($css);
         if (isset($css, self::$namedColors[$css])) {
             $color = (new Rgb())->setNamedColor($css);
-        } elseif (preg_match('!#?[0-9a-f]{3}([0-9a-f]{3})?!', $css)) {
+        } elseif (preg_match('!#[0-9a-f]{3}([0-9a-f]{3})?!', $css)) {
             $color = (new Rgb())->setHex($css);
         } elseif (preg_match('!\s*([a-z]+)\s*\((.*?)\)!', $css, $match)) {
             $color = self::parseCss($match[1], $match[2]);

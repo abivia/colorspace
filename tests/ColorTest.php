@@ -32,6 +32,12 @@ class ColorTest extends TestCase
 
     public function testFromCssRgb()
     {
+        $color = Color::fromCss('rgb(255, 77, 77)');
+        $this->assertInstanceOf(Rgb::class, $color);
+    }
+
+    public function testFromCssRgba()
+    {
         $color = Color::fromCss('rgba(50% 10% 25% / 0.5)');
         $this->assertInstanceOf(Rgb::class, $color);
 

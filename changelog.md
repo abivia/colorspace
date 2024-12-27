@@ -1,5 +1,9 @@
 # Change Log
 
+# 1.0.2
+
+* Match for color in CSS hex was incorrect.
+
 # 1.0.1
 
 Fixed:
