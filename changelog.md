@@ -1,6 +1,17 @@
 # Change Log
 
-# 1.1.0
+# 1.3.0
+
+Added:
+* Support for CMYK
+* Get Percent methods for HSB, HSL, CMYK
+* toString() function
+* Remaining color conversion tests.
+
+Removed:
+* Get Int methods for HSB, HSL
+
+# 1.2.0
 
 Fixed:
 * Error in hue computation.
@@ -11,6 +22,7 @@ Added:
 
 # 1.0.2
 
+Fixed:
 * Match for color in CSS hex was incorrect.
 
 # 1.0.1

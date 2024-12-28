@@ -105,4 +105,14 @@ class Rgb extends Color
         return $result;
     }
 
+    public function toString(int $precision = 2): string
+    {
+        $add = ($this->alpha === 1.0) ? '' : ' / ' . self::asPercent($this->alpha, $precision);
+        return round($this->red * 255)
+            . ', ' . round($this->green * 255)
+            . ', ' . round($this->blue * 255)
+            . $add;
+
+    }
+
 }

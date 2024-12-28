@@ -133,13 +133,15 @@ class Hsl extends Color
     }
 
     /**
-     * Get the color's lightness as an int
-     * @return int
+     * Get the color's lightness as a percentage
+     * @param int $precision
+     * @param string $symbol
+     * @return string
      */
-    public function getLightnessInt(): int
+    public function getLightnessPercent(int $precision = 2, string $symbol = '%'): string
     {
         $this->calculateHsl();
-        return (int)round(255 * $this->lightness);
+        return round(100 * $this->lightness, $precision) . $symbol;
     }
 
     /**
@@ -153,13 +155,15 @@ class Hsl extends Color
     }
 
     /**
-     * Get the color's saturation as an int
-     * @return int
+     * Get the color's saturation as a percentage
+     * @param int $precision
+     * @param string $symbol
+     * @return string
      */
-    public function getSaturationInt(): int
+    public function getSaturationPercent(int $precision = 2, string $symbol = '%'): string
     {
         $this->calculateHsl();
-        return (int)round(255 * $this->saturation);
+        return round(100 * $this->saturation, $precision) . $symbol;
     }
 
     /**
@@ -182,9 +186,9 @@ class Hsl extends Color
             }
             [$hue, $saturation, $lightness] = $hue;
         }
-        $this->lightness = $this->limit($lightness);
-        $this->hue = $this->limit($hue);
-        $this->saturation = $this->limit($saturation);
+        $this->lightness = $this->limit($lightness, 1.0);
+        $this->hue = $this->limit($hue, 360.0);
+        $this->saturation = $this->limit($saturation, 1.0);
         $this->calculateRgb();
 
         return $this;
@@ -212,7 +216,7 @@ class Hsl extends Color
             }
             [$hue, $saturation, $lightness, $alpha] = $hue;
         }
-        $this->alpha = $this->limit($alpha);
+        $this->alpha = $this->limit($alpha, 1.0);
         $this->setHsl($hue, $saturation, $lightness);
 
         return $this;
@@ -230,7 +234,7 @@ class Hsl extends Color
             $hue = strtolower($hue);
         }
         if ($hue !== 'none') {
-            $this->hue = $this->limit($hue);
+            $this->hue = $this->limit($hue, 360.0);
             $this->calculateRgb();
         }
         return $this;
@@ -256,7 +260,7 @@ class Hsl extends Color
             $lightness = strtolower($lightness);
         }
         if ($lightness !== 'none') {
-            $this->lightness = $this->limit($lightness);
+            $this->lightness = $this->limit($lightness, 1.0);
             $this->calculateRgb();
         }
 
@@ -275,7 +279,7 @@ class Hsl extends Color
             $saturation = strtolower($saturation);
         }
         if ($saturation !== 'none') {
-            $this->saturation = $this->limit($saturation);
+            $this->saturation = $this->limit($saturation, 1.0);
             $this->calculateRgb();
         }
 
@@ -301,9 +305,12 @@ class Hsl extends Color
 
     public function toString(int $precision = 2): string
     {
+        $this->calculateHsl();
+        $add = ($this->alpha === 1.0) ? '' : ' / ' . self::asPercent($this->alpha, $precision);
         return round($this->hue * 360, $precision)
             . ', ' . self::asPercent($this->saturation, $precision)
-            . ', ' . self::asPercent($this->lightness, $precision);
+            . ', ' . self::asPercent($this->lightness, $precision)
+            . $add;
     }
 
 }

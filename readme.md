@@ -1,10 +1,11 @@
-# Abivia\ColorSpace - Color conversions and manipulation
+# Abivia ColorSpace - Color conversions and manipulation
 
-This is a revisit of a library that was written for PHP 4, revised for PHP 5,
-now rewritten for PHP 8.1+.
+This is a revisit of a library that was originally written for PHP 4, revised for PHP 5,
+now completely rewritten for PHP 8.1+.
 
-It allows conversions between colors in RGB, HSL, and HSB (aka HSV) spaces, 
-including parsing RGB/HSL CSS colors in both "legacy" and "modern" syntax.
+It allows conversions between colors in RGB, HSL, HSB (aka HSV), and CMYK spaces. 
+This includes parsing RGB/HSL CSS colors in both "legacy" and "modern" syntax,
+formatting as strings including CSS formats (hex, rgb, rgba, hsl, hsla). 
 The library also supports a variety of color manipulation operations
 (blend, difference, posterize, etc.)
 

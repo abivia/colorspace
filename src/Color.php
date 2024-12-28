@@ -249,10 +249,10 @@ abstract class Color
      */
     public function add(Color $delta): self
     {
-        $this->alpha = self::limit($this->alpha + $delta->getAlpha());
-        $this->red = self::limit($this->red + $delta->getRed());
-        $this->green = self::limit($this->green + $delta->getGreen());
-        $this->blue = self::limit($this->blue + $delta->getBlue());
+        $this->alpha = self::limit($this->alpha + $delta->getAlpha(), 1.0);
+        $this->red = self::limit($this->red + $delta->getRed(), 1.0);
+        $this->green = self::limit($this->green + $delta->getGreen(), 1.0);
+        $this->blue = self::limit($this->blue + $delta->getBlue(), 1.0);
         $this->recompute = true;
 
         return $this;
@@ -284,7 +284,7 @@ abstract class Color
      */
     public function blend(Color $mix, float $ratio, $blendAlpha = false): Color
     {
-        $ratio = self::limit(abs($ratio));
+        $ratio = self::limit(abs($ratio), 1.0);
         if ($blendAlpha) {
             $ratioA = $ratio;
         } else {
@@ -371,6 +371,17 @@ abstract class Color
     }
 
     /**
+     * Get the color's blue as a percentage
+     * @param int $precision
+     * @param string $symbol
+     * @return string
+     */
+    public function getBluePercent(int $precision = 2, string $symbol = '%'): string
+    {
+        return round(100 * $this->blue, $precision) . $symbol;
+    }
+
+    /**
      * Return a monochrome equivalent of the color.
      *
      * This method uses the YIQ color model, returning the Y (luminance)
@@ -399,6 +410,17 @@ abstract class Color
     public function getGreenInt(): int
     {
         return (int)round(255 * $this->green);
+    }
+
+    /**
+     * Get the color's green as a percentage
+     * @param int $precision
+     * @param string $symbol
+     * @return string
+     */
+    public function getGreenPercent(int $precision = 2, string $symbol = '%'): string
+    {
+        return round(100 * $this->green, $precision) . $symbol;
     }
 
     /**
@@ -473,6 +495,17 @@ abstract class Color
     public function getRedInt(): int
     {
         return (int)round(255 * $this->red);
+    }
+
+    /**
+     * Get the color's red as a percentage
+     * @param int $precision
+     * @param string $symbol
+     * @return string
+     */
+    public function getRedPercent(int $precision = 2, string $symbol = '%'): string
+    {
+        return round(100 * $this->red, $precision) . $symbol;
     }
 
     /**
@@ -583,23 +616,23 @@ abstract class Color
     /**
      * Clamp a value into the range 0..1.
      * @param float|int|string $value
-     * @param bool $alpha
+     * @param float $scale
      * @return float
      * @throws ColorSpaceException
      */
-    public static function limit(float|int|string $value, float $factor = 255.0): float
+    public static function limit(float|int|string $value, float $scale = 255.0): float
     {
         if (is_string($value)) {
             if (str_ends_with($value, '%')) {
                 $value = substr($value, 0, -1);
-                $factor = 100.0;
+                $scale = 100.0;
             }
             if (!is_numeric($value)) {
                 throw new ColorSpaceException("$value is not valid.");
             }
-            $float = $value / $factor;
+            $float = $value / $scale;
         } elseif (is_int($value)) {
-            $float = $value / 255.0;
+            $float = $value / $scale;
         } else {
             $float = $value;
         }
@@ -750,7 +783,7 @@ abstract class Color
             $alpha = strtolower($alpha);
         }
         if ($alpha !== 'none') {
-            $this->alpha = $this->limit($alpha, true);
+            $this->alpha = $this->limit($alpha, 1.0);
             $this->recompute = true;
         }
 
@@ -769,7 +802,7 @@ abstract class Color
             $blue = strtolower($blue);
         }
         if ($blue !== 'none') {
-            $this->blue = $this->limit($blue);
+            $this->blue = $this->limit($blue, 255.0);
             $this->recompute = true;
         }
         return $this;
@@ -787,7 +820,7 @@ abstract class Color
             $grayLevel = strtolower($grayLevel);
         }
         if ($grayLevel !== 'none') {
-            $this->red = $this->limit($grayLevel);
+            $this->red = $this->limit($grayLevel, 255.0);
             $this->green = $this->red;
             $this->blue = $this->red;
             $this->recompute = true;
@@ -808,7 +841,7 @@ abstract class Color
             $green = strtolower($green);
         }
         if ($green !== 'none') {
-            $this->green = $this->limit($green);
+            $this->green = $this->limit($green, 255.0);
             $this->recompute = true;
         }
         return $this;
@@ -875,7 +908,7 @@ abstract class Color
             $red = strtolower($red);
         }
         if ($red !== 'none') {
-            $this->red = $this->limit($red);
+            $this->red = $this->limit($red, 255.0);
             $this->recompute = true;
         }
 
@@ -957,16 +990,30 @@ abstract class Color
         return $this;
     }
 
+    /**
+     * @return string
+     * @throws ColorSpaceException
+     */
+    public function toCss(): string
+    {
+        $classParts = explode('\\', self::class);
+        $space = array_pop($classParts);
+        throw new ColorSpaceException("$space is not supported in CSS.");
+    }
+
     public function toCssHex(): string
     {
         return '#' . $this->hex($this->red) . $this->hex($this->green) . $this->hex($this->blue);
     }
 
-    public function toString(int $precision = 2): string
+    public function toString(int $precision = 6): string
     {
-        return self::asPercent($this->red, $precision)
-            . ', ' . self::asPercent($this->green, $precision)
-            . ', ' . self::asPercent($this->blue, $precision);
+        $add = ($this->alpha === 1.0) ? '' : ' / ' . self::asPercent($this->alpha, $precision);
+        return round($this->red, $precision)
+            . ', ' . round($this->green, $precision)
+            . ', ' . round($this->blue, $precision)
+            . $add;
+
     }
 
 }

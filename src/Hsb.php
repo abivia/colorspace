@@ -22,14 +22,14 @@ class Hsb extends Color
     /**
      * @param array|float|int|string|\Abivia\ColorSpace\Color $hue
      * @param float|int $saturation
-     * @param float|int $value
+     * @param float|int $brightness
      * @param float $alpha
      * @throws ColorSpaceException
      */
     public function __construct(
         array|float|int|string|Color $hue = 0.0,
         float|int $saturation = 0.0,
-        float|int $value = 0.0,
+        float|int $brightness = 0.0,
         float $alpha = 1.0
     )
     {
@@ -41,12 +41,12 @@ class Hsb extends Color
             parent::__construct($hue);
         } else {
             parent::__construct();
-            $this->setHsba($hue, $saturation, $value, $alpha);
+            $this->setHsba($hue, $saturation, $brightness, $alpha);
         }
     }
 
     /**
-     * Use the existing RGB values to calculate HSL
+     * Use the existing RGB values to calculate HSB
      *
      * @return void
      */
@@ -148,13 +148,15 @@ class Hsb extends Color
     }
 
     /**
-     * Get the color's brightness as an int
-     * @return int
+     * Get the color's brightness as a percentage
+     * @param int $precision
+     * @param string $symbol
+     * @return string
      */
-    public function getBrightnessInt(): int
+    public function getBrightnessPercent(int $precision = 2, string $symbol = '%'): string
     {
         $this->calculateHsb();
-        return (int)round(255 * $this->brightness);
+        return round(100 * $this->brightness, $precision) . $symbol;
     }
 
     /**
@@ -178,13 +180,15 @@ class Hsb extends Color
     }
 
     /**
-     * Get the color's saturation as an int
-     * @return int
+     * Get the color's saturation as a percentage
+     * @param int $precision
+     * @param string $symbol
+     * @return string
      */
-    public function getSaturationInt(): int
+    public function getSaturationPercent(int $precision = 2, string $symbol = '%'): string
     {
         $this->calculateHsb();
-        return (int)round(255 * $this->saturation);
+        return round(100 * $this->saturation, $precision) . $symbol;
     }
 
     /**
@@ -199,7 +203,7 @@ class Hsb extends Color
             $brightness = strtolower($brightness);
         }
         if ($brightness !== 'none') {
-            $this->brightness = $this->limit($brightness);
+            $this->brightness = $this->limit($brightness, 1.0);
             $this->calculateRgb();
         }
 
@@ -226,9 +230,9 @@ class Hsb extends Color
             }
             [$hue, $saturation, $brightness] = $hue;
         }
-        $this->brightness = $this->limit($brightness);
-        $this->hue = $this->limit($hue);
-        $this->saturation = $this->limit($saturation);
+        $this->brightness = $this->limit($brightness, 1.0);
+        $this->hue = $this->limit($hue, 360.0);
+        $this->saturation = $this->limit($saturation, 1.0);
         $this->calculateRgb();
 
         return $this;
@@ -256,7 +260,7 @@ class Hsb extends Color
             }
             [$hue, $saturation, $brightness, $alpha] = $hue;
         }
-        $this->alpha = $this->limit($alpha);
+        $this->alpha = $this->limit($alpha, 1.0);
         $this->setHsb($hue, $saturation, $brightness);
 
         return $this;
@@ -274,7 +278,7 @@ class Hsb extends Color
             $hue = strtolower($hue);
         }
         if ($hue !== 'none') {
-            $this->hue = $this->limit($hue);
+            $this->hue = $this->limit($hue, 360.0);
             $this->calculateRgb();
         }
         return $this;
@@ -300,7 +304,7 @@ class Hsb extends Color
             $saturation = strtolower($saturation);
         }
         if ($saturation !== 'none') {
-            $this->saturation = $this->limit($saturation);
+            $this->saturation = $this->limit($saturation, 1.0);
             $this->calculateRgb();
         }
 
@@ -310,9 +314,11 @@ class Hsb extends Color
     public function toString(int $precision = 2): string
     {
         $this->calculateHsb();
+        $add = ($this->alpha === 1.0) ? '' : ' / ' . self::asPercent($this->alpha, $precision);
         return round($this->hue * 360, $precision)
             . ', ' . self::asPercent($this->saturation, $precision)
-            . ', ' . self::asPercent($this->brightness, $precision);
+            . ', ' . self::asPercent($this->brightness, $precision)
+            . $add;
     }
 
 }
