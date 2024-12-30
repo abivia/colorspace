@@ -1166,6 +1166,20 @@ class ConversionTest extends TestCase
         }
     }
 
+    public function testConversionHslToRgbToHsl()
+    {
+        foreach (self::$samples as $name => $expect) {
+            if ($expect['hsl'] === '') {
+                continue;
+            }
+            $color = Color::fromCss($name);
+            $hsl = new Hsl($color);
+            $rgb = new Rgb($hsl);
+            $hsl2 = new Hsl($rgb);
+            $this->assertEquals($expect['hsl'], $hsl2->toCss(legacy: true, precision: 0), $name);
+        }
+    }
+
     public function testConversionNameToHsl()
     {
         foreach (self::$samples as $name => $expect) {
