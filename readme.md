@@ -21,7 +21,7 @@ $colorHsl = Color::fromCss('hsl(50%, 10%, 25%)');
 $colorRgb = Color::fromCss('rgba(50% 10% 25% / 0.5)');
 
 // Convert RGB to HSL
-$converted = new Hsl($color);
+$converted = new Hsl($colorRgb);
 
 // Modern syntax
 echo $converted->toCss();       // output: hsla(239 80% 50% / 0.5)
